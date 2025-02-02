@@ -1,0 +1,13 @@
+ktor:
+    application:
+        modules:
+            - com.yogaveda.auth.ApplicationKt.module
+    deployment:
+        port: 8080
+
+
+jwt:
+    audience: "yogaveda-main"
+    secret: $SECRET
+    issuer: "https://auth.yogaveda.in"
+    realm: "yogaveda.in"
