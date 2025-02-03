@@ -6,6 +6,8 @@ import com.yogaveda.auth.routing.response.UserResponse
 import com.yogaveda.auth.service.UserService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -26,7 +28,7 @@ fun Route.userRoute(
             HttpStatusCode.BadRequest
         )
 
-        call.response.header (
+        call.response.header(
             name = "id",
             value = createdUser.id.toString()
         )
@@ -51,15 +53,14 @@ fun Route.userRoute(
 
     authenticate("admin-auth") {
         get("/{id}") {
-            val id = call.parameters["id"] ?: return@get call.respond(
-                HttpStatusCode.BadRequest
-            )
+            val id = call.parameters["id"]
+                ?: return@get call.respond(HttpStatusCode.BadRequest)
 
-            val foundUser = userService.findById(
-                id
-            ) ?: return@get call.respond(
-                HttpStatusCode.NotFound
-            )
+            val foundUser = userService.findById(id)
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+
+            if (foundUser.username != extractUsernameFromPrincipal(call))
+                return@get call.respond(HttpStatusCode.Forbidden)
 
             call.respond(
                 HttpStatusCode.OK,
@@ -68,6 +69,9 @@ fun Route.userRoute(
         }
     }
 }
+
+fun extractUsernameFromPrincipal(call: io.ktor.server.application.ApplicationCall): String? =
+    call.principal<JWTPrincipal>()?.getClaim("username", String::class)
 
 fun UserRequest.toModel() = User(
     id = UUID.randomUUID(),

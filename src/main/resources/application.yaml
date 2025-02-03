@@ -7,7 +7,10 @@ ktor:
 
 
 jwt:
-    audience: "yogaveda-main"
+    audience:
+        - "yogaveda-main"
+        - "yogaveda-admin"
+        - "uphaar"
     secret: $SECRET
     issuer: "https://auth.yogaveda.in"
     realm: "yogaveda.in"
