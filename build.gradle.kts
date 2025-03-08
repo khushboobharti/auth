@@ -25,7 +25,8 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.netty)
-    implementation("io.ktor:ktor-server-auth-jwt:3.0.3")
+    implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.ktor.server.cors)
 
     // Logging
     implementation(libs.ktor.server.call.logging)
@@ -34,11 +35,16 @@ dependencies {
     // Exposed
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
-    implementation("org.jetbrains.exposed:exposed-dao:0.58.0")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.58.0")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.58.0")
-    implementation("org.postgresql:postgresql:42.7.5")
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.exposed.java.time)
 
+    //DB
+    implementation(libs.postgresql)
+    implementation(libs.hikari)
+    implementation(libs.flyway.core)
+
+    // JWT library
     implementation("com.auth0:java-jwt:4.4.0")
 
     // Ktor Client

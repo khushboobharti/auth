@@ -1,5 +1,6 @@
 package com.yogaveda.auth
 
+import com.yogaveda.auth.data.configureDatabase
 import com.yogaveda.auth.plugins.configureLogging
 import com.yogaveda.auth.plugins.configureSecurity
 import com.yogaveda.auth.repository.UserRepository
@@ -20,6 +21,8 @@ fun Application.module() {
     val refreshTokenRepository = RefreshTokenRepository()
     val jwtService = JWTService(this, userRepository)
     val userService = UserService(userRepository, refreshTokenRepository, jwtService)
+
+    configureDatabase()
 
     configureSerialization()
     configureLogging()
