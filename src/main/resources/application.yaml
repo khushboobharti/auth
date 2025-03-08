@@ -3,7 +3,7 @@ ktor:
         modules:
             - com.yogaveda.auth.ApplicationKt.module
     deployment:
-        port: 8080
+        port: 8081
 
 
 jwt:

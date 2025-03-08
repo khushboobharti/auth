@@ -34,3 +34,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Properties files which holds passwords ###
+src/main/resources/*.properties
+
+upcoming_tasks.txt
