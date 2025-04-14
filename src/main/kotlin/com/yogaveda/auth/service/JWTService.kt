@@ -37,25 +37,27 @@ class JWTService(
         }
     }
 
-    fun createAccessToken(username: String): String =
-        createJWTToken(username, 3_600_000)
+    fun createAccessToken(email: String): String =
+        createJWTToken(email, 3_600_000)
 
-    fun createRefreshToken(username: String): String =
-        createJWTToken(username, 86_400_000)
+    fun createRefreshToken(email: String): String =
+        createJWTToken(email, 86_400_000)
 
     private fun createJWTToken(username: String, expireIn: Long): String =
         JWT.create()
             .withAudience(*audience)
             .withIssuer(issuer)
-            .withClaim("username", username)
+            .withClaim("email", username)
             .withExpiresAt(Instant.now().plusMillis(expireIn))
             .sign(Algorithm.HMAC256(secret))
 
-    fun customValidator(credentials: JWTCredential): JWTPrincipal? {
+    suspend fun customValidator(credentials: JWTCredential): JWTPrincipal? {
 
-        val username = extractUsername(credentials)//credentials.payload.getClaim("username").asString()
+        val email = extractEmail(credentials)   //credentials.payload.getClaim("username").asString()
 
-        val foundUser = username?.let(userRepository::findByUsername)
+        val foundUser = email?.let {
+            userRepository.findByEmail(it)
+        }
 
         return foundUser?.let {
             if(audienceMatches(credentials) && issuerMatches(credentials) && expirationTimeNotPassed(credentials)) {
@@ -83,8 +85,8 @@ class JWTService(
             this.audience.contains(it)
         }?.let { true } ?: false
 
-    private fun extractUsername(credentials: JWTCredential): String? =
-        credentials.payload.getClaim("username").asString()
+    private fun extractEmail(credentials: JWTCredential): String? =
+        credentials.payload.getClaim("email").asString()
 
     private fun getConfigProperty(path: String) =
         application.environment.config.property(path).getString()

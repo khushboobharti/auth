@@ -1,63 +1,82 @@
 package com.yogaveda.auth.repository
 
-import com.yogaveda.auth.data.entities.AuthenticationMethods
 import com.yogaveda.auth.data.entities.UserAuthenticationMethodEntity
 import com.yogaveda.auth.data.entities.UserEntity
 import com.yogaveda.auth.data.entities.UserTable
 import com.yogaveda.auth.data.entities.base.currentUtc
 import com.yogaveda.auth.model.User
+import com.yogaveda.auth.model.VerifiedUser
+import com.yogaveda.auth.util.extension.query
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
 class UserRepository {
 
     private val users = mutableListOf<User>()
 
-    fun save(user: User) : Boolean =
-        users.add(user)
-
-    /*fun add(user: User):  Boolean {
-        val retrievedUser = UserEntity.find (UserTable.email eq user.username).singleOrNull()
-
-        // Now make a call to the Google Server to make sure the retrieved value is correct
-        // and get other information if required
-        retrievedUser?.let {
-            // throw exception as email already exists
-        } ?: run {
-            // If the transaction is successful return user response or just throw an error.
-            transaction {
+    suspend fun save(user: VerifiedUser): String? {
+        // If the transaction is successful return user response or null.
+        return try {
+            query {
+                //UserEntity.find( UserTable.email eq "mailrahulkthakur@gmail.com").firstOrNull()
                 val newUserEntity = UserEntity.new {
-                    this.email = "email"
-                    this.name = "name"
+                    this.email = user.email
+                    this.name = user.displayName
                     this.dob = currentUtc()
-                    this.gender = "gender"
                 }
                 UserAuthenticationMethodEntity.new {
-                    this.user_id = newUserEntity.id.toString()
-                    this.auth_method = AuthenticationMethods.GOOGLE
-                    this.value = "user_token"
-                    this.isVerified = true
-
-                    // A primary login method can be selected later
-                    *//*this.isPrimary = true
-                    this.isMFAEnabled = false
-                    this.isActive = true*//*
+                    this.userId = newUserEntity.id.toString()
+                    //this.authMethod = AuthenticationMethods.GOOGLE
+                    this.accessToken = user.accessToken
+                    this.refreshToken = user.refreshToken
                 }
                 newUserEntity.id.value
             }
-
+        } catch (e: Exception) {
+            // Handle the exception
+            println("Transaction failed: ${e.message}")
+            null
         }
-    }*/
+    }
 
-    fun findAll() : List<User> =
-        users
 
-    fun findById(id: UUID) : User? =
-        users.firstOrNull { it.id == id }
+    suspend fun findAll(): List<User> {
+        return query {
+            UserEntity.all().map {
+                User(
+                    id = UUID.fromString(it.id.toString()),
+                    email = it.email,
+                    name = it.name,
+                    dob = it.dob.toString()
+                )
+            }
+        }
+    }
 
-    fun findByUsername(username: String) : User? =
-        users.firstOrNull { it.username == username }
+    suspend fun findById(id: UUID): User? {
+        return query {
+            UserEntity.find(UserTable.id eq id.toString()).singleOrNull()?.let {
+                User(
+                    id = UUID.fromString(it.id.toString()),
+                    email = it.email,
+                    name = it.name,
+                    dob = it.dob.toString()
+                )
+            }
+        }
+    }
+
+    suspend fun findByEmail(email: String): User? {
+        return query {
+            UserEntity.find(UserTable.email eq email).singleOrNull()?.let {
+                User(
+                    id = UUID.fromString(it.id.toString()),
+                    email = it.email,
+                    name = it.name,
+                    dob = it.dob.toString()
+                )
+            }
+        }
+    }
 
 }

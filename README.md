@@ -1,5 +1,14 @@
 # auth
 
+Authorization server for all Yogaveda apps.
+
+# APIs
+Auth Route
+These APIs are sed for:
+- Login for existing users
+- Generating refresh tokens
+
+
 This project was created using the [Ktor Project Generator](https://start.ktor.io).
 
 Here are some useful links to get you started:

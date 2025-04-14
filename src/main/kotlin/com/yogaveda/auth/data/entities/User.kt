@@ -10,7 +10,6 @@ object UserTable: BaseIntIdTable("user") {
     val email = varchar("email", 255).uniqueIndex()
     val name = varchar("name", 255)
     val dob =  datetime("dob").nullable()
-    val gender = varchar("gender", 10).nullable()
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -20,7 +19,6 @@ class UserEntity(id: EntityID<String>) : BaseIntEntity(id, UserTable) {
     var email by UserTable.email
     var name by UserTable.name
     var dob by UserTable.dob
-    var gender by UserTable.gender
 
     //fun response() = UserResponse(UUID.fromString(id.value), email, name, dob, gender)
 }

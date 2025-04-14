@@ -1,5 +1,6 @@
 package com.yogaveda.auth.data
 
+import com.yogaveda.auth.data.entities.TokensTable
 import com.yogaveda.auth.data.entities.UserAuthenticationMethodTable
 import com.yogaveda.auth.data.entities.UserTable
 import com.zaxxer.hikari.HikariConfig
@@ -23,7 +24,8 @@ fun configureDatabase() {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(
                 UserTable,
-                UserAuthenticationMethodTable
+                UserAuthenticationMethodTable,
+                TokensTable
             )
         }
     }

@@ -14,7 +14,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 abstract class BaseIntIdTable(name: String) : IdTable<String>(name) {
-    override val id: Column<EntityID<String>> = varchar("id", 50).clientDefault { UUID.randomUUID().toString() }.uniqueIndex().entityId()
+    final override val id: Column<EntityID<String>> = varchar("id", 50).clientDefault { UUID.randomUUID().toString() }.uniqueIndex().entityId()
     val createdAt = datetime("created_at").clientDefault { currentUtc() }
     val updatedAt = datetime("updated_at").nullable()
     override val primaryKey = PrimaryKey(id)

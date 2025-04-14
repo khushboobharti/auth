@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
@@ -20,6 +19,8 @@ repositories {
 }
 
 dependencies {
+
+    // Ktor Server
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.content.negotiation)
@@ -45,19 +46,21 @@ dependencies {
     implementation(libs.flyway.core)
 
     // JWT library
-    implementation("com.auth0:java-jwt:4.4.0")
+    implementation(libs.auth0.java.jwt)
 
     // Ktor Client
-    implementation("io.ktor:ktor-client-core:3.0.3")
-    implementation("io.ktor:ktor-client-json:3.0.3")
-    implementation("io.ktor:ktor-client-serialization:3.0.3")
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.json)
+    implementation(libs.ktor.client.serialization)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.logging)
 
     // H2 DB
     implementation(libs.h2)
 
     // Koin
-    implementation("io.insert-koin:koin-ktor:4.0.2")
-    implementation("io.insert-koin:koin-logger-slf4j:4.0.2")
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
 
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)

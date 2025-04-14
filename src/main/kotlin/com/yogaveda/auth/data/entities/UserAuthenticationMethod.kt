@@ -7,20 +7,20 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.ReferenceOption
 
 object UserAuthenticationMethodTable: BaseIntIdTable("user_authentication_method") {
-    val user_id = varchar("user_id", 255).references(UserTable.id, onDelete = ReferenceOption.CASCADE)
-    val auth_method = enumeration<AuthenticationMethods>("auth_method").default(AuthenticationMethods.GOOGLE)   //varchar("name", 255)
-    val value =  varchar("value", 512)
-    val isVerified = bool("is_verified").default(false)
+    val userId = varchar("user_id", 255).references(UserTable.id, onDelete = ReferenceOption.CASCADE)
+    //val authMethod = enumeration<AuthenticationMethods>("auth_method").default(AuthenticationMethods.GOOGLE)   //varchar("name", 255)
+    val accessToken =  varchar("accessToken", 512)
+    val refreshToken = varchar("refreshToken", 512)
     override val primaryKey = PrimaryKey(id)
 }
 
 class UserAuthenticationMethodEntity(id: EntityID<String>) : BaseIntEntity(id, UserAuthenticationMethodTable) {
     companion object : BaseIntEntityClass<UserAuthenticationMethodEntity>(UserAuthenticationMethodTable)
 
-    var user_id by UserAuthenticationMethodTable.user_id
-    var auth_method by UserAuthenticationMethodTable.auth_method
-    var value by UserAuthenticationMethodTable.value
-    var isVerified by UserAuthenticationMethodTable.isVerified
+    var userId by UserAuthenticationMethodTable.userId
+    //var authMethod by UserAuthenticationMethodTable.authMethod
+    var accessToken by UserAuthenticationMethodTable.accessToken
+    var refreshToken by UserAuthenticationMethodTable.refreshToken
 
     //fun response() = UserResponse(UUID.fromString(id.value), email, name, dob, gender)
 }

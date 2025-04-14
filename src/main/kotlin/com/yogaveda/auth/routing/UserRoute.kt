@@ -1,7 +1,7 @@
 package com.yogaveda.auth.routing
 
 import com.yogaveda.auth.model.User
-import com.yogaveda.auth.routing.request.UserRequest
+import com.yogaveda.auth.routing.request.VerifiedUserRequest
 import com.yogaveda.auth.routing.response.UserResponse
 import com.yogaveda.auth.service.UserService
 import io.ktor.http.HttpStatusCode
@@ -14,40 +14,64 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.get
-import java.util.UUID
 
 fun Route.userRoute(
     userService: UserService
 ) {
-    post {
-        val userRequest = call.receive<UserRequest>()
+    /**
+     * User Registration
+     * Creates a new user if user does not exists.
+     * If user already exists, then just return the tokens
+     */
+    post("register") {
 
-        val createdUser = userService.save(
-            userRequest.toModel()
-        ) ?: return@post call.respond(
+        // receive a verified user
+        val verifiedUser = call.receive<VerifiedUserRequest>()
+        val authResponse = userService.registerUser(verifiedUser)
+
+        authResponse?.let {
+            call.response.header(
+                name = "id",
+                value = authResponse.id
+            )
+
+            call.respond(
+                status = HttpStatusCode.Created,
+                message = authResponse
+            )
+        } ?: return@post call.respond(
             HttpStatusCode.BadRequest
         )
 
-        call.response.header(
-            name = "id",
-            value = createdUser.id.toString()
-        )
+    }
 
-        call.respond(
-            HttpStatusCode.Created
-        )
+    /**
+     * User Login
+     * Authenticates the user and returns the tokens
+     */
+    post("login") {
+
+        val verifiedUserRequest = call.receive<VerifiedUserRequest>()
+        val authResponse = userService.authenticate(verifiedUserRequest)
+
+        authResponse?.let {
+            call.respond(it)
+        } ?: call.respond(HttpStatusCode.Unauthorized)
+
     }
 
     authenticate {
+        /**
+         * Get all users
+         */
         get {
-
             val users = userService.findAll()
             call.respond(
                 HttpStatusCode.OK,
                 message = users.map { it.toResponse() }
             )
-
         }
+
     }
 
 
@@ -59,7 +83,7 @@ fun Route.userRoute(
             val foundUser = userService.findById(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            if (foundUser.username != extractUsernameFromPrincipal(call))
+            if (foundUser.email != extractEmailFromPrincipal(call))
                 return@get call.respond(HttpStatusCode.Forbidden)
 
             call.respond(
@@ -70,16 +94,11 @@ fun Route.userRoute(
     }
 }
 
-fun extractUsernameFromPrincipal(call: io.ktor.server.application.ApplicationCall): String? =
-    call.principal<JWTPrincipal>()?.getClaim("username", String::class)
+fun extractEmailFromPrincipal(call: io.ktor.server.application.ApplicationCall): String? =
+    call.principal<JWTPrincipal>()?.getClaim("email", String::class)
 
-fun UserRequest.toModel() = User(
-    id = UUID.randomUUID(),
-    username = username,
-    password = password
-)
 
 fun User.toResponse() = UserResponse(
     id = id,
-    username = username
+    email = email
 )
